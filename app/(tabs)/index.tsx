@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
+
 import MedicationCard from "../../components/MedicationCard";
 import MedicationForm from "../../components/MedicationForm";
 import { Medication } from "../../types/Medication";
@@ -10,12 +11,20 @@ export default function HomeScreen() {
   const [dosis, setDosis] = useState("");
   const [hora, setHora] = useState("");
   const [correo, setCorreo] = useState("");
+
   const [medicamentos, setMedicamentos] = useState<Medication[]>([]);
+
   const STORAGE_KEY = "@medicamentos";
 
+  // Cargar medicamentos al abrir la app
   useEffect(() => {
     cargarMedicamentos();
   }, []);
+
+  // Guardar medicamentos cada vez que cambie la lista
+  useEffect(() => {
+    guardarMedicamentos();
+  }, [medicamentos]);
 
   async function cargarMedicamentos() {
     try {
@@ -29,15 +38,11 @@ export default function HomeScreen() {
     }
   }
 
-  useEffect(() => {
-    guardarMedicamentos();
-  }, [medicamentos]);
-
   async function guardarMedicamentos() {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(medicamentos));
     } catch (error) {
-      console.log("Error al guardar", error);
+      console.log("Error al guardar medicamentos", error);
     }
   }
 
@@ -64,6 +69,14 @@ export default function HomeScreen() {
     setCorreo("");
   }
 
+  function marcarComoTomado(id: string) {
+    const actualizados = medicamentos.map((med) =>
+      med.id === id ? { ...med, estado: "Tomado ✅" } : med,
+    );
+
+    setMedicamentos(actualizados);
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Recordatorio de Medicamentos</Text>
@@ -85,7 +98,12 @@ export default function HomeScreen() {
       <FlatList
         data={medicamentos}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <MedicationCard medication={item} />}
+        renderItem={({ item }) => (
+          <MedicationCard
+            medication={item}
+            marcarComoTomado={marcarComoTomado}
+          />
+        )}
       />
     </View>
   );
@@ -96,7 +114,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     marginTop: 40,
-    backgroundColor: "white",
+    backgroundColor: "#fff",
   },
 
   title: {

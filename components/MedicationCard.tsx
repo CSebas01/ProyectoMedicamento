@@ -1,12 +1,17 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
 import { Medication } from "../types/Medication";
 
 interface Props {
   medication: Medication;
+  marcarComoTomado: (id: string) => void;
 }
 
-export default function MedicationCard({ medication }: Props) {
+export default function MedicationCard({
+  medication,
+  marcarComoTomado,
+}: Props) {
   return (
     <View style={styles.card}>
       <Text>
@@ -28,6 +33,13 @@ export default function MedicationCard({ medication }: Props) {
       <Text>
         <Text style={styles.bold}>Estado:</Text> {medication.estado}
       </Text>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => marcarComoTomado(medication.id)}
+      >
+        <Text style={styles.buttonText}>Marcar como tomado</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -43,6 +55,19 @@ const styles = StyleSheet.create({
   },
 
   bold: {
+    fontWeight: "bold",
+  },
+
+  button: {
+    marginTop: 10,
+    backgroundColor: "#16A34A",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+
+  buttonText: {
+    color: "#fff",
     fontWeight: "bold",
   },
 });
