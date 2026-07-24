@@ -1,98 +1,160 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { useState } from "react";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const [nombre, setNombre] = useState("");
+  const [dosis, setDosis] = useState("");
+  const [hora, setHora] = useState("");
+  const [correo, setCorreo] = useState("");
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const [medicamentos, setMedicamentos] = useState<any[]>([]);
+
+  function agregarMedicamento() {
+    if (
+      nombre.trim() === "" ||
+      dosis.trim() === "" ||
+      hora.trim() === "" ||
+      correo.trim() === ""
+    ) {
+      alert("Completa todos los campos.");
+      return;
+    }
+
+    const nuevoMedicamento = {
+      id: Date.now().toString(),
+      nombre,
+      dosis,
+      hora,
+      correo,
+      estado: "Pendiente",
+    };
+
+    setMedicamentos([...medicamentos, nuevoMedicamento]);
+
+    setNombre("");
+    setDosis("");
+    setHora("");
+    setCorreo("");
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.titulo}>Recordatorio de Medicamentos</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Nombre del medicamento"
+        value={nombre}
+        onChangeText={setNombre}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Dosis"
+        value={dosis}
+        onChangeText={setDosis}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Hora (Ej. 08:00 PM)"
+        value={hora}
+        onChangeText={setHora}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Correo electrónico"
+        value={correo}
+        onChangeText={setCorreo}
+      />
+
+      <TouchableOpacity style={styles.boton} onPress={agregarMedicamento}>
+        <Text style={styles.textoBoton}>Guardar medicamento</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.subtitulo}>Medicamentos registrados</Text>
+
+      <FlatList
+        data={medicamentos}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.card}>
+            <Text>
+              <Text style={styles.negrita}>Medicamento:</Text> {item.nombre}
+            </Text>
+            <Text>
+              <Text style={styles.negrita}>Dosis:</Text> {item.dosis}
+            </Text>
+            <Text>
+              <Text style={styles.negrita}>Hora:</Text> {item.hora}
+            </Text>
+            <Text>
+              <Text style={styles.negrita}>Correo:</Text> {item.correo}
+            </Text>
+            <Text>
+              <Text style={styles.negrita}>Estado:</Text> {item.estado}
+            </Text>
+          </View>
+        )}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    padding: 20,
+    marginTop: 40,
+    backgroundColor: "#fff",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  titulo: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  subtitulo: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+  },
+  boton: {
+    backgroundColor: "#2563EB",
+    padding: 14,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  textoBoton: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  card: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 10,
+    backgroundColor: "#f9f9f9",
+  },
+  negrita: {
+    fontWeight: "bold",
   },
 });
