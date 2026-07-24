@@ -15,3 +15,9 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```bash
    npx expo start
    ```
+
+Para almacenar los datos
+""npx expo install @react-native-async-storage/async-storage""
+Y agregar
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect } from "react";
