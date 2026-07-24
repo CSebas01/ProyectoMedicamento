@@ -1,10 +1,14 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import MedicationCard from "../../components/MedicationCard";
 import MedicationForm from "../../components/MedicationForm";
 import { Medication } from "../../types/Medication";
+
+import {
+  cargarMedicamentos,
+  guardarMedicamentos,
+} from "../../services/storage";
 
 export default function HomeScreen() {
   const [nombre, setNombre] = useState("");
@@ -14,37 +18,18 @@ export default function HomeScreen() {
 
   const [medicamentos, setMedicamentos] = useState<Medication[]>([]);
 
-  const STORAGE_KEY = "@medicamentos";
-
-  // Cargar medicamentos al abrir la app
   useEffect(() => {
-    cargarMedicamentos();
+    async function cargar() {
+      const datos = await cargarMedicamentos();
+      setMedicamentos(datos);
+    }
+
+    cargar();
   }, []);
 
-  // Guardar medicamentos cada vez que cambie la lista
   useEffect(() => {
-    guardarMedicamentos();
+    guardarMedicamentos(medicamentos);
   }, [medicamentos]);
-
-  async function cargarMedicamentos() {
-    try {
-      const datos = await AsyncStorage.getItem(STORAGE_KEY);
-
-      if (datos) {
-        setMedicamentos(JSON.parse(datos));
-      }
-    } catch (error) {
-      console.log("Error al cargar medicamentos", error);
-    }
-  }
-
-  async function guardarMedicamentos() {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(medicamentos));
-    } catch (error) {
-      console.log("Error al guardar medicamentos", error);
-    }
-  }
 
   function agregarMedicamento() {
     if (!nombre || !dosis || !hora || !correo) {
@@ -61,7 +46,7 @@ export default function HomeScreen() {
       estado: "Pendiente",
     };
 
-    setMedicamentos([...medicamentos, nuevo]);
+    setMedicamentos((prev) => [...prev, nuevo]);
 
     setNombre("");
     setDosis("");
