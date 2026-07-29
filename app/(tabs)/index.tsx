@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
-
 import MedicationCard from "../../components/MedicationCard";
 import MedicationForm from "../../components/MedicationForm";
-import { Medication } from "../../types/Medication";
-
 import {
   cargarMedicamentos,
   guardarMedicamentos,
 } from "../../services/storage";
+import { Medication } from "../../types/Medication";
 
+//pantalla inicial y los datos a rellenar en el formulario
 export default function HomeScreen() {
   const [nombre, setNombre] = useState("");
   const [dosis, setDosis] = useState("");
@@ -36,14 +35,14 @@ export default function HomeScreen() {
       alert("Completa todos los campos.");
       return;
     }
-
+    //Este apartado es para marcar el estado inicial al guardar los datos del medicamento
     const nuevo: Medication = {
       id: Date.now().toString(),
       nombre,
       dosis,
       hora,
       correo,
-      estado: "Pendiente",
+      estado: "Pendiente ",
     };
 
     setMedicamentos((prev) => [...prev, nuevo]);

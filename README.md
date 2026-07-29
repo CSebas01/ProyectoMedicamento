@@ -21,3 +21,6 @@ Para almacenar los datos
 Y agregar
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect } from "react";
+
+Axios para conectar el backend
+npx expo install axios

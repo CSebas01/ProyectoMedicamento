@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "recordatorio-medicamentos",
-    "slug": "recordatorio-medicamentos",
+    "slug": "proyectomedicamento",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -43,6 +43,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d8b1ff13-121e-4680-b4cb-0d7e1f2e47e4"
+      }
+    },
+    "owner": "csebas01"
   }
 }

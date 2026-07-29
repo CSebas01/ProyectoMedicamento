@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Medication } from "../types/Medication";
 
+//Contraseña de asyncstorage
 const STORAGE_KEY = "@medicamentos";
 
 export async function cargarMedicamentos(): Promise<Medication[]> {
