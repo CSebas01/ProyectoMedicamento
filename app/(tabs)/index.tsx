@@ -2,21 +2,25 @@ import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import MedicationCard from "../../components/MedicationCard";
 import MedicationForm from "../../components/MedicationForm";
+import { enviarMedicamento } from "../../services/api";
 import {
   cargarMedicamentos,
   guardarMedicamentos,
 } from "../../services/storage";
 import { Medication } from "../../types/Medication";
 
-//pantalla inicial y los datos a rellenar en el formulario
+//Pantalla principal de la aplicación
 export default function HomeScreen() {
+  // Estados del formulario
   const [nombre, setNombre] = useState("");
   const [dosis, setDosis] = useState("");
   const [hora, setHora] = useState("");
   const [correo, setCorreo] = useState("");
 
+  // Lista de medicamentos registrados
   const [medicamentos, setMedicamentos] = useState<Medication[]>([]);
 
+  // Carga los medicamentos guardados al iniciar la aplicación
   useEffect(() => {
     async function cargar() {
       const datos = await cargarMedicamentos();
@@ -26,39 +30,58 @@ export default function HomeScreen() {
     cargar();
   }, []);
 
-  useEffect(() => {
-    guardarMedicamentos(medicamentos);
-  }, [medicamentos]);
-
-  function agregarMedicamento() {
+  //Agrega un nuevo medicamento
+  async function agregarMedicamento() {
+    // Verifica que todos los campos estén completos
     if (!nombre || !dosis || !hora || !correo) {
       alert("Completa todos los campos.");
       return;
     }
-    //Este apartado es para marcar el estado inicial al guardar los datos del medicamento
+
+    //Crea el nuevo objeto medicamento
     const nuevo: Medication = {
       id: Date.now().toString(),
       nombre,
       dosis,
       hora,
       correo,
-      estado: "Pendiente ",
+      estado: "Pendiente",
     };
 
-    setMedicamentos((prev) => [...prev, nuevo]);
+    //Actualiza la lista de medicamentos
+    const nuevaLista = [...medicamentos, nuevo];
+    setMedicamentos(nuevaLista);
 
+    //Guarda la lista actualizada en AsyncStorage
+    await guardarMedicamentos(nuevaLista);
+
+    //Envía la informacion al webhook de n8n para generar el correo
+    try {
+      await enviarMedicamento(nuevo);
+      alert("Medicamento registrado y recordatorio enviado correctamente.");
+    } catch (error) {
+      console.error("Error enviando a n8n:", error);
+      alert("No se pudo enviar el recordatorio.");
+    }
+
+    //Limpia los campos del formulario
     setNombre("");
     setDosis("");
     setHora("");
     setCorreo("");
   }
 
-  function marcarComoTomado(id: string) {
+  //Cambia el estado del medicamento a "Tomado"
+  async function marcarComoTomado(id: string) {
     const actualizados = medicamentos.map((med) =>
+      //El icono de palomita sacado de google
       med.id === id ? { ...med, estado: "Tomado ✅" } : med,
     );
 
     setMedicamentos(actualizados);
+
+    //Guarda el cambio en AsyncStorage
+    await guardarMedicamentos(actualizados);
   }
 
   return (
@@ -93,6 +116,7 @@ export default function HomeScreen() {
   );
 }
 
+//Estilos de la pantalla
 const styles = StyleSheet.create({
   container: {
     flex: 1,
